@@ -4,10 +4,8 @@ import {
   Pagination,
   usePagination,
   PaginationNext,
-  PaginationPage,
   PaginationPrevious,
   PaginationContainer,
-  PaginationPageGroup,
 } from "@ajna/pagination";
 import { UserModel } from "../../models/user.model";
 import User from "../user/user";
@@ -16,16 +14,9 @@ import { useEffect, useState } from "react";
 
 
 const DataTable = (props: any) => {
-  const [usersTotal, setUsersTotal] = useState<number | undefined>(
-    undefined
-  );
-  const [users, setUsers] = useState<UserModel[]>([]);
   const { data, isLoading, isError } = useGetUsers()
   useEffect(() => {
-    if (data) {
-      setUsersTotal(data.length)
-      setUsers(paginate(data, pageSize, currentPage))
-    }
+    
   }, []);
 
 
@@ -42,7 +33,7 @@ const {
   pageSize,
   setPageSize,
 } = usePagination({
-  total: usersTotal,
+  total: data?.length,
   limits: {
     outer: outerLimit,
     inner: innerLimit,
@@ -54,14 +45,14 @@ const {
   },
 });
 
-function paginate(array: any[], page_size: number, page_number: number) {
-  // human-readable page numbers usually start with 1, so we reduce 1 in the first argument
+//function get list users with pagination
+function paginate(array: any[] | undefined, page_size: number, page_number: number) {
+  if(!array){return []}
   return array.slice((page_number - 1) * page_size, page_number * page_size);
 }
 
+//function action move pagination
 const handlePageChange = (nextPage: number): void => {
-  if(data){setUsers(paginate(data, pageSize, nextPage))}
-  // -> request new data using the page number
   setCurrentPage(nextPage);
 };
   
@@ -79,9 +70,9 @@ const handlePageChange = (nextPage: number): void => {
       </Tr>
     </Thead>
     <Tbody>
-    {users ? users.map((user: UserModel) => (
+    {paginate(data, pageSize, currentPage)?.map((user: UserModel) => (
       <User key={user.id} data={user} />
-    )) : ''}
+    ))}
     </Tbody>
     <Tfoot>
       <Tr>
@@ -89,7 +80,7 @@ const handlePageChange = (nextPage: number): void => {
           <Flex>
             <Box p='4'>
               <Text>
-                Showing {currentPage} to 5 of {usersTotal} results
+                Showing {currentPage} to 5 of {data?.length} results
               </Text>
             </Box>
             <Spacer />

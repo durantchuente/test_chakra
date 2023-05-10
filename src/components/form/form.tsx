@@ -6,14 +6,10 @@ const Form = (props: any) => {
     const user = props.user
     const [image, imageState] = useState('https://bit.ly/sage-adebayo');
 
+    //function onChange image
     const onImageChange = (event:any) => {
         let file = URL.createObjectURL(event.target.files[0]);
-        
-        console.log("File", file);
-        
-        if (file === undefined) {
-          console.log("File removed");
-        } else {
+        if (file) {
           imageState(file);
         }
     };
